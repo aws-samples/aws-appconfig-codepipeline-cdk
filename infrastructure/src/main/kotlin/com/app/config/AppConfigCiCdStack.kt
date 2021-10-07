@@ -104,7 +104,7 @@ class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String
 
         val validatorFunction = Function(this, "LoggingConfigValidator", FunctionProps.builder()
                 .runtime(Runtime.JAVA_11)
-                .code(Code.fromAsset("software/", AssetOptions.builder()
+                .code(Code.fromAsset("../software/", AssetOptions.builder()
                         .bundling(builderOptions.build())
                         .build()))
                 .handler("com.app.config.ValidatorHandler")
@@ -228,6 +228,24 @@ class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String
                         .id("ServerlessAppConfigSourceRuleTarget")
                         .roleArn(startPipelineRole.roleArn)
                         .build()))
+                .build())
+
+        CfnOutput(this, "ServerlessApplicationConfig", CfnOutputProps.builder()
+                .description("ServerlessApplicationConfig id")
+                .value(application.ref)
+                .exportName("ServerlessApplicationConfig")
+                .build())
+
+        CfnOutput(this, "TestEnvironmentId", CfnOutputProps.builder()
+                .description("Test Environment id")
+                .value(environment.ref)
+                .exportName("TestEnvironmentId")
+                .build())
+
+        CfnOutput(this, "LoggingConfigurationId", CfnOutputProps.builder()
+                .description("LoggingConfiguration id")
+                .value(profile.ref)
+                .exportName("LoggingConfigurationId")
                 .build())
     }
 }
