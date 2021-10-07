@@ -1,9 +1,9 @@
 package com.app.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import software.amazon.awscdk.*
+import software.amazon.awscdk.BundlingOutput.ARCHIVED
 import software.amazon.awscdk.RemovalPolicy.DESTROY
-import software.amazon.awscdk.Stack
-import software.amazon.awscdk.StackProps
 import software.amazon.awscdk.services.appconfig.*
 import software.amazon.awscdk.services.appconfig.CfnEnvironment.TagsProperty
 import software.amazon.awscdk.services.codecommit.Repository
@@ -14,8 +14,15 @@ import software.amazon.awscdk.services.codepipeline.CfnPipelineProps
 import software.amazon.awscdk.services.events.CfnRule
 import software.amazon.awscdk.services.events.CfnRuleProps
 import software.amazon.awscdk.services.iam.*
+import software.amazon.awscdk.services.lambda.*
+import software.amazon.awscdk.services.lambda.Function
+import software.amazon.awscdk.services.logs.RetentionDays
 import software.amazon.awscdk.services.s3.Bucket
+import software.amazon.awscdk.services.s3.assets.AssetOptions
 import software.constructs.Construct
+
+data class Validator(val Type: String = "LAMBDA",
+                     val Content: String)
 
 class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String?, props: StackProps? = null) : Stack(scope, id, props) {
     init {
@@ -25,6 +32,8 @@ class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String
                         .description("ConFiguration For Serverless Application")
                         .name("ServerlessApplicationConfig")
                         .build())
+
+        val validatorFunction = configValidatorFunction()
 
         val environment = CfnEnvironment(this, "Testing",
                 CfnEnvironmentProps.builder()
@@ -38,12 +47,13 @@ class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String
                         .build()
         )
 
-        val profile = CfnConfigurationProfile(this, "LoggingConfig",
+        val profile = CfnConfigurationProfile(this, "LoggingConfiguration",
                 CfnConfigurationProfileProps.builder()
                         .applicationId(application.ref)
                         .description("Logging related configuration")
-                        .name("LoggingConfig")
-                        .locationUri("codepipeline://ConfigurationDeploymentPipeline")
+                        .name("LoggingConfiguration")
+                        .locationUri("codepipeline://ServerlessAppConfigPipeline")
+                        .validators(listOf(Validator(Content = validatorFunction.functionArn)))
                         .tags(listOf(CfnConfigurationProfile.TagsProperty.builder()
                                 .key("Type")
                                 .value("Logging")
@@ -69,6 +79,47 @@ class AppConfigCiCdStack @JvmOverloads constructor(scope: Construct?, id: String
         )
 
         pipeline(repository, application, environment, profile, deploymentStrategy)
+    }
+
+    private fun configValidatorFunction(): Function {
+        val validatorPackagingInstruction = listOf(
+                "/bin/sh",
+                "-c",
+                "cd configvalidator " +
+                "&& mvn clean install " +
+                "&& cp /asset-input/configvalidator/target/appconfig-validator.jar /asset-output/"
+        )
+
+        val builderOptions: BundlingOptions.Builder = BundlingOptions.builder()
+                .command(validatorPackagingInstruction)
+                .image(Runtime.JAVA_11.bundlingImage)
+                .volumes(listOf( // Mount local .m2 repo to avoid download all the dependencies again inside the container
+                        DockerVolume.builder()
+                                .hostPath(System.getProperty("user.home") + "/.m2/")
+                                .containerPath("/root/.m2/")
+                                .build()
+                ))
+                .user("root")
+                .outputType(ARCHIVED)
+
+        val validatorFunction = Function(this, "LoggingConfigValidator", FunctionProps.builder()
+                .runtime(Runtime.JAVA_11)
+                .code(Code.fromAsset("software/", AssetOptions.builder()
+                        .bundling(builderOptions.build())
+                        .build()))
+                .handler("com.app.config.ValidatorHandler")
+                .memorySize(1024)
+                .timeout(Duration.seconds(10))
+                .logRetention(RetentionDays.ONE_WEEK)
+                .functionName("LoggingConfigValidator")
+                .build())
+
+        validatorFunction.addPermission("AppConfigInvokePermission", Permission.builder()
+                .action("lambda:InvokeFunction")
+                .principal(ServicePrincipal.Builder.create("appconfig.amazonaws.com").build())
+                .build())
+
+        return validatorFunction
     }
 
     private fun pipeline(repository: Repository,
