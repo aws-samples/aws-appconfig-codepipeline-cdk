@@ -1,0 +1,2 @@
+application.logging:
+  level: INFO
