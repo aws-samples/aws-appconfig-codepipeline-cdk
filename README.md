@@ -94,3 +94,22 @@ try accessing the same api url again. You should be able to see the latest confi
 ```bash
  curl https://<hash>.execute-api.eu-west-1.amazonaws.com/prod/?appConfig=true
 ```
+
+## Useful commands
+
+* `mvn package`     compile and run tests
+* `cdk ls`          list all stacks in the app
+* `cdk synth`       emits the synthesized CloudFormation template
+* `cdk deploy`      deploy this stack to your default AWS account/region
+* `cdk diff`        compare deployed stack with current state
+* `cdk docs`        open CDK documentation
+
+Enjoy!
+
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## License
+
+This library is licensed under the MIT-0 License. See the LICENSE file.
