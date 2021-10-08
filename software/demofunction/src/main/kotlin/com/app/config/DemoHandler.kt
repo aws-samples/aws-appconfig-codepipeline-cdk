@@ -21,7 +21,7 @@ class DemoHandler : RequestHandler<APIGatewayProxyRequestEvent, APIGatewayV2HTTP
     }
 
     override fun handleRequest(input: APIGatewayProxyRequestEvent, context: Context?): APIGatewayV2HTTPResponse {
-        val showAppConfigResults = input.queryStringParameters["appConfig"].toBoolean()
+        val showAppConfigResults = input.queryStringParameters?.getOrDefault("appConfig", "false").toBoolean()
 
         val headers = mapOf(Pair("Content-Type", "application/json"))
 
