@@ -30,13 +30,14 @@ backed by [AWS Lambda](https://aws.amazon.com/lambda/) which makes use of [AWS A
 
 ```bash
     cd infrastructure
+    cdk synth
 ```
 
 - Deploy the CDK application stack named `AppConfigCiCdStack`. This stack will take care of setting up app config application named `ServerlessApplicationConfig` with 
 a `Test` environment which will use codepipeline as configuration store. CodePipeline is also created using a codecommit repository as a source for configurations. 
 
 ```bash
-    cdk deploy AppConfigCiCdStack
+    cdk deploy --app 'cdk.out/' AppConfigCiCdStack
 ```
 
 Above command will take care of packaging the `configvalidator` lambda function as well. Acknowledge security related changes 
@@ -69,7 +70,7 @@ to validate the configurations.
 - Deploy `ServerlessAppStack`. Acknowledge security related changes prompt during deployment process.
 
 ```bash
-  cdk deploy ServerlessAppStack
+  cdk deploy --app 'cdk.out/' ServerlessAppStack
 ```
 
 Serverless Api Path is provided as stack output. 
