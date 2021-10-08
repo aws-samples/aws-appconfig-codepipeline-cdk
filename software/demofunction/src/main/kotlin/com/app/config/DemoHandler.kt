@@ -23,6 +23,8 @@ class DemoHandler : RequestHandler<APIGatewayProxyRequestEvent, APIGatewayV2HTTP
     override fun handleRequest(input: APIGatewayProxyRequestEvent, context: Context?): APIGatewayV2HTTPResponse {
         val showAppConfigResults = input.queryStringParameters["appConfig"].toBoolean()
 
+        val headers = mapOf(Pair("Content-Type", "application/json"))
+
         if(showAppConfigResults) {
             val client = HttpClient.newBuilder().build()
 
@@ -32,10 +34,14 @@ class DemoHandler : RequestHandler<APIGatewayProxyRequestEvent, APIGatewayV2HTTP
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
-            println(response)
+            return APIGatewayV2HTTPResponse.builder()
+                    .withStatusCode(200)
+                    .withHeaders(headers)
+                    .withIsBase64Encoded(false)
+                    .withBody(response.body())
+                    .build()
         }
 
-        val headers = mapOf(Pair("Content-Type", "application/json"))
 
         return APIGatewayV2HTTPResponse.builder()
                 .withStatusCode(200)
