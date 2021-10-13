@@ -55,8 +55,10 @@ You need to clone the newly created codecommit repo to push a [sample config fil
 - Commit [sample config file](infrastructure/src/main/resources/asset/logging.yaml) into the repo.
 
 ```bash
+  git checkout -b main
   git add .
   git commit -m "Log config"
+  git push origin main
 ```
 
 Now the codepipeline should trigger automatically and deploy the configuration. It will also invoke the [validator handler](software/configvalidator/src/main/kotlin/com/app/config/ValidatorHandler.kt)
