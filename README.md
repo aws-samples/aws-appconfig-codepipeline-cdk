@@ -9,6 +9,8 @@ backed by [AWS Lambda](https://aws.amazon.com/lambda/) which makes use of [AWS A
 
 [Kotlin](https://kotlinlang.org/) is used as language runtime to set up both the cdk application and needed lambda functions. 
 
+![img.png](infrastructure/src/main/resources/asset/arch.png)
+
 ## Project structure
 
     ├── infrastructure          # Infrastructure code vi CDK(Kotlin) for AppConfig setup.
