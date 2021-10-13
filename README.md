@@ -21,6 +21,7 @@ backed by [AWS Lambda](https://aws.amazon.com/lambda/) which makes use of [AWS A
 
 - Make sure you have [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html) installed and configured with an aws account you want to use.
 - [git-remote-codecommit](https://github.com/aws/git-remote-codecommit#step-3-install-git-remote-codecommit)
+- Ensure you have [docker](https://docs.docker.com/get-docker/) installed and is up and running locally.
 
 # Getting started
 
