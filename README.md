@@ -96,6 +96,17 @@ try accessing the same api url again. You should be able to see the latest confi
  curl https://<hash>.execute-api.eu-west-1.amazonaws.com/prod/?appConfig=true
 ```
 
+
+## Cleanup
+
+```bash
+    cdk destroy ServerlessAppStack
+    cdk destroy AppConfigCiCdStack
+```
+
+Acknowledge stack deletion when prompted.
+
+
 ## Useful commands
 
 * `mvn package`     compile and run tests
