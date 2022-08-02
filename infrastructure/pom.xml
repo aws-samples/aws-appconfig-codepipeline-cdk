@@ -75,7 +75,7 @@
         <dependency>
             <groupId>software.constructs</groupId>
             <artifactId>constructs</artifactId>
-            <version>10.1.63</version>
+            <version>10.1.64</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
